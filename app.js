@@ -82,7 +82,7 @@ app.post('/send/:roomId', (req, res) => {
 
   // Send message to ActiveMQ
   stompClient.publish({
-    destination: `/topic/${roomId}`,
+    destination: `/topic/game`,
     body: JSON.stringify(message)
   });
 
