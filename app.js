@@ -9,6 +9,8 @@ let rooms = {};
 
 const app = express();
 app.use(express.json());
+const gameRoutes = require('./routes/game');
+app.use('/game', gameRoutes);
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
