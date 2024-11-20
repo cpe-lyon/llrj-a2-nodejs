@@ -2,8 +2,8 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const Stomp = require("stomp-client");
-const room = require('./utils/room');
-const login = require('./utils/login');
+const room = require('./app/chat/controller/chatController');
+const login = require('./app/chat/middleware/loginMiddleware');
 Object.assign(global, { WebSocket: require('ws') });
 let rooms = {'0': {users:new Set()}};
 
@@ -90,8 +90,3 @@ io.on('connection', (socket) => {
 server.listen(4000, () => {
   console.log('Server listening on port 4000');
 });
-
-module.exports={
-  sendMessage
-}
-

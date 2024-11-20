@@ -2,14 +2,14 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const Stomp = require("stomp-client");
-const room = require('./utils/room');
-const login = require('./utils/login');
+const room = require('./app/chat/controller/chatController');
+const login = require('./app/chat/middleware/loginMiddleware');
 Object.assign(global, { WebSocket: require('ws') });
 let rooms = {};
 
 const app = express();
 app.use(express.json());
-const gameRoutes = require('./routes/game');
+const gameRoutes = require('./app/game/routes/game');
 app.use('/game', gameRoutes);
 const server = http.createServer(app);
 

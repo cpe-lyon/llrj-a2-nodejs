@@ -1,4 +1,4 @@
-class Card {
+export default class Card {
     constructor(id, name, attack, health) {
         this.id = id;
         this.name = name;
