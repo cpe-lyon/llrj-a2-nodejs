@@ -90,3 +90,8 @@ io.on('connection', (socket) => {
 server.listen(4000, () => {
   console.log('Server listening on port 4000');
 });
+
+module.exports={
+  sendMessage
+}
+

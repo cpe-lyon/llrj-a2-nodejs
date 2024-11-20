@@ -19,10 +19,6 @@ const io = new Server(server, {
   }
 });
 
-
-// Connection to ActiveMQ
-// stompClient.activate();
-
 server.listen(6666, () => {
   console.log('Server listening on port 6666');
 });
