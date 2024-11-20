@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const SECRET_KEY="CHAT_KEY_SEC"
 
-export default class loginMiddleware {
+class loginMiddleware {
     /**
      *
      * @param app
@@ -41,3 +41,5 @@ export default class loginMiddleware {
         });
     }
 }
+
+module.exports = new loginMiddleware();

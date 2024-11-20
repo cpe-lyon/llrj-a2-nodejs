@@ -1,4 +1,4 @@
-export default class Card {
+class Card {
     constructor(id, name, attack, health) {
         this.id = id;
         this.name = name;
@@ -6,3 +6,5 @@ export default class Card {
         this.health = health;
     }
 }
+
+module.exports = Card;

@@ -1,4 +1,4 @@
-export default class Player {
+class Player {
     constructor(id) {
         this.id = id;
         this.cards = []; // cartes choisies par le joueur
@@ -19,3 +19,5 @@ export default class Player {
         return this.cards.length == 3;
     }
 }
+
+module.exports = Player;

@@ -61,4 +61,4 @@ class chatController {
     }
 }
 
-export default new chatController({})
+module.exports = new chatController({})
