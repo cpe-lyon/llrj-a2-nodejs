@@ -2,10 +2,9 @@ const express = require('express');
 const router = express.Router();
 const gameController = require('../controller/gameController');
 
-router.post('/start', (req, res) => {
+router.post('/start/:room',async  (req, res) => {
     // Initialiser le jeu avec les joueurs fournis
-    gameController.startGame(req.body.players);
-    res.send({ message: "Le jeu a commencé." });
+    return gameController.startGame(req.params.room, res);
 });
 
 router.post('/playCard', (req, res) => {

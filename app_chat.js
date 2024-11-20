@@ -58,7 +58,7 @@ io.on('connection', (socket) => {
 
   socket.on('joinRoom', (roomId) => {
     console.log(`User ${socket.id} joined room ${roomId}`);
-    if (''+roomId == '0') return;
+    if (''+roomId === '0') return;
     if (rooms[roomId]) {
       socket.join(roomId);
       console.log(`User ${socket.id} joined room ${roomId}`);
@@ -83,7 +83,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);
-    rooms['0'].users = rooms['0'].users.delete(socket.login);
+    rooms['0'].users.delete(socket.login);
   });
 });
 

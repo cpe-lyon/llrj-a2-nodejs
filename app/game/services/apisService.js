@@ -2,7 +2,7 @@ const { ADMIN_KEY, GATEWAY_HOST } = require('../../commons/config');
 const axios = require('axios')
 
 const sendMessage = async (roomId, content) => {
-    const res =await axios.post(`http://${GATEWAY_HOST}/chat/send/`+roomId, {content}, {
+    const res =await axios.post(`http://${GATEWAY_HOST}/internal/chat/send/`+roomId, {content}, {
         headers: {
             'x-adminkey': ADMIN_KEY
         }
@@ -12,7 +12,8 @@ const sendMessage = async (roomId, content) => {
 
 
 const getUsers = async (roomId) => {
-    const {data, error} = await axios.get(`http://${GATEWAY_HOST}/chat/getUsers/`+roomId);
+    const {data, error} = await axios.get(`http://${GATEWAY_HOST}/internal/chat/getUsers/`+roomId).catch();
+    console.log("RESPONSE from chat ", {data,error});
     if (error) throw new Error("Error in chat response");
     return data;
 }

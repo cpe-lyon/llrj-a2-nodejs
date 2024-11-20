@@ -1,11 +1,11 @@
-const { getUsers } = require('../services/apisService');
+const { getUsers, sendMessage} = require('../services/apisService');
 
 const Player = require('../models/player');
-const Card = require('../models/card');
-const express = require('express');
-const router = express.Router();
-const ADMIN_KEY = 'ADMIN_KEY';
 
+/**
+ *
+ * @type {{[room:string]: {players: [Player, Player]}}}
+ */
 let games = {};
 
 class UserController {
@@ -14,16 +14,25 @@ class UserController {
     }
 
     async startGame(roomId, res) {
-        if(!games[roomId]) {
-            res.status(404).send('Room not found');
+        if(!roomId) {
+            return res.status(401).send('Invalid room id');
         }
+        if(games[roomId]) {
+            return res.status(401).send('Room already created');
+        }
+        console.log("Starting "+roomId)
+        /**
+         * @type {[Player, Player]}
+         */
         let players = (await getUsers(roomId)).map(id=> new Player(id));
 
         players.forEach(player => {
             player.resetActionPoints();
         });
         players[0].isTurn = true;
-        sendMessage(roomid,`Debut de la partie, ${players[0]} qui commence`,"gameMaster")
+        games[roomId] = {players};
+        await sendMessage(roomId,"start-game;---")
+        res.send({ message: "Le jeu a commencé." });
     }
 
     playCard(roomid, attacker, defender, cardId) {

@@ -37,7 +37,8 @@ class chatController {
         // Route for gettings all users in a room
         app.get('/getUsers/:roomId', (req, res) => {
             const roomId = req.params.roomId;
-            res.status(200).json([...rooms[roomId].users]);
+            if (!rooms[roomId]) return res.status(404).send("No room "+roomId)
+            return res.status(200).json([...rooms[roomId].users]);
         });
     
         // Route for sending a message in a room
