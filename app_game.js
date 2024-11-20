@@ -12,13 +12,7 @@ app.use(express.json());
 const gameRoutes = require('./routes/game');
 app.use('/game', gameRoutes);
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:8088',
-    methods: ['GET', 'POST']
-  }
-});
 
-server.listen(6666, () => {
-  console.log('Server listening on port 6666');
+server.listen(8088, () => {
+  console.log('Server listening on port 8088');
 });
