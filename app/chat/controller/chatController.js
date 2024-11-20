@@ -1,4 +1,4 @@
-const { ADMIN_KEY } = "../../commons/config";
+const { ADMIN_KEY } = require("../../commons/config");
 
 
 class chatController {
