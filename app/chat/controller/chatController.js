@@ -1,4 +1,4 @@
-require { ADMIN_KEY } from "../../commons/config";
+const { ADMIN_KEY } = "../../commons/config";
 
 
 class chatController {
