@@ -1,35 +1,24 @@
+import { getUsers } from '../services/apisService';
+
 const Player = require('../models/player');
 const Card = require('../models/card');
 const express = require('express');
 const router = express.Router();
 const ADMIN_KEY = 'ADMIN_KEY';
 
+let games = {};
+
 class UserController {
     constructor({}) {
         console.log("new UserController")
     }
 
-    sendMessage(roomId, msgSender) {
-        // VERIF L'URL
-        router.post('/sendMessage', (req, res) => {
-            const { content, user } = req.body;
-            const adminKey = req.headers['x-adminkey'];
+    async startGame(roomId, res) {
+        if(!games[roomId]) {
+            res.status(404).send('Room not found');
+        }
+        let players = (await getUsers(roomId)).map(id=> new Player(id));
 
-            // if (!rooms[roomId]) {
-            //     return res.status(404).send('Room not found');
-            // }
-            if (adminKey !== ADMIN_KEY) {
-                return res.status(403).send('Unauthorized');
-            }
-
-            const message = { roomId, content, user, timestamp: new Date().getTime() };
-            msgSender.send(message)
-
-            res.status(200).json({ roomId });
-        });
-    }
-
-    startGame(roomid,players) {
         players.forEach(player => {
             player.resetActionPoints();
         });

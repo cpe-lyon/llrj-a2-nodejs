@@ -1,7 +1,6 @@
 export default class Player {
-    constructor(id, name) {
+    constructor(id) {
         this.id = id;
-        this.name = name;
         this.cards = []; // cartes choisies par le joueur
         this.actionPoints = 3;
         this.totalActionPoints = 3;
@@ -15,5 +14,8 @@ export default class Player {
     }
     addActionPoints(){
         this.actionPoints += 2;
+    }
+    isReady(){
+        return this.cards.length == 3;
     }
 }
