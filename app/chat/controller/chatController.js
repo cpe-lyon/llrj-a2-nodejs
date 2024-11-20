@@ -1,4 +1,4 @@
-import { ADMIN_KEY } from "../../commons/config";
+require { ADMIN_KEY } from "../../commons/config";
 
 
 class chatController {

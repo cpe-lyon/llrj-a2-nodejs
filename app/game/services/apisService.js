@@ -1,4 +1,4 @@
-import { ADMIN_KEY, GATEWAY_HOST } from '../../commons/config'
+const { ADMIN_KEY, GATEWAY_HOST } = require('../../commons/config');
 const axios = require('axios')
 
 export const sendMessage = async (roomId, content) => {

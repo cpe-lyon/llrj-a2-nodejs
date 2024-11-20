@@ -1,4 +1,4 @@
-import { getUsers } from '../services/apisService';
+const { getUsers } = require('../services/apisService');
 
 const Player = require('../models/player');
 const Card = require('../models/card');
