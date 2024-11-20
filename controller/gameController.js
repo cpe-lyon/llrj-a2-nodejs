@@ -76,10 +76,11 @@ function checkEndTurn(player1, player2){
     }
 }
 
-function checkGameOver(players) {
-    const loser = players.find(player => player.cards.length === 0);
-    return loser ? true : false;
-    sendMessage(roomid,"${loser} a perdu", Date.now())
+function checkGameOver(player) {
+    if (player.cards.length === 0){
+        sendMessage(roomid,`${player} a perdu`, Date.now())
+        return true
+    }
 }
 
 module.exports = {
