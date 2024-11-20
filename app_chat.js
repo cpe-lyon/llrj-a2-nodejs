@@ -5,7 +5,7 @@ const Stomp = require("stomp-client");
 const room = require('./utils/room');
 const login = require('./utils/login');
 Object.assign(global, { WebSocket: require('ws') });
-let rooms = {};
+let rooms = {'0': {users:new Set()}};
 
 const app = express();
 app.use(express.json());
@@ -23,19 +23,28 @@ client.connect(function(sessionId) {
   console.log('Connected to ActiveMQ with session ID:', sessionId);
 });
 
-
-// Connection to ActiveMQ
-// stompClient.activate();
-
 /**
  * @param {{ roomId: string, content: string, user: string, timestamp: string }} msg
  */
 function sendMessage(msg){
-  io.to(msg.roomId).emit('receiveMessage', msg);
+  if (''+msg.roomId === '0'){
+    console.log("Sending to all")
+    io.emit('receiveMessage', msg);
+  } else {
+    console.log("Sending to room "+msg.roomId)
+    io.to(msg.roomId).emit('receiveMessage', msg);
+  }
+
   const message = JSON.stringify(msg);
-  client.publish(`/queue/game`, message, function(_err) {
-    console.error("Could not send "+message)
-  });
+  try {
+    client.publish(`/queue/game`, message, function (_err) {
+      console.error("Could not send " + message)
+    });
+  }catch (e){
+    console.error("ActiveMQ Err")
+    console.error(e);
+  }
+
 }
 
 room.registerRoomHttpApi(app, rooms, {send: sendMessage})
@@ -45,8 +54,11 @@ login.registerTokenMiddleware(io);
 
 io.on('connection', (socket) => {
   console.log('A user connected:', socket.login);
+  rooms['0'].users.add(socket.login);
 
   socket.on('joinRoom', (roomId) => {
+    console.log(`User ${socket.id} joined room ${roomId}`);
+    if (''+roomId == '0') return;
     if (rooms[roomId]) {
       socket.join(roomId);
       console.log(`User ${socket.id} joined room ${roomId}`);
@@ -57,7 +69,7 @@ io.on('connection', (socket) => {
   
   socket.on('sendMessage', (message) => {
     const { roomId, content } = message;
-    if (!rooms[roomId]) {
+    if (''+roomId !== '0' && !rooms[roomId]) {
       socket.emit('error', 'Room does not exist');
     }
     const toSendMsg = {
@@ -71,6 +83,7 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('A user disconnected:', socket.id);
+    rooms['0'].users = rooms['0'].users.delete(socket.login);
   });
 });
 
