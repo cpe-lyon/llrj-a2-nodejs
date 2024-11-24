@@ -1,10 +1,10 @@
-const { getUsers, sendMessage} = require('../services/apisService');
+const { getUsers, sendMessage, getCards} = require('../services/apisService');
 
 const Player = require('../models/player');
 
 /**
  *
- * @type {{[room:string]: {players: [Player, Player]}}}
+ * @type {{[room:string]: {ready:boolean, players: [Player, Player]}}}
  */
 let games = {};
 
@@ -13,12 +13,41 @@ class UserController {
         console.log("new UserController")
     }
 
+    getGame(room, res){
+        const game = games[room]
+        return game ? res.status(200).json(game) : res.status(404);
+    }
+
+    async selectCards(roomId, login, cards, res){
+        if (cards?.length !== 3)
+            return res.status(400).send("need 3 cards");
+        let players = games[roomId]?.players;
+        /**
+         * @type {Player}
+         */
+        let player = players && players?.filter(p => p.id === login)[0];
+        if (player.cards?.length === 3)
+            return res.status(400).send("Cards already selected");
+        let myCards = await getCards(player);
+        let selectedCards = myCards?.filter(c => cards.includes(c.id));
+        if (selectedCards?.length !== 3)
+            return res.status(400).send("need 3 OWNED cards");
+        selectedCards.forEach(c=>player.addCard(c));
+
+        if (players.filter(p => p.cards.length === 3).length === 2){
+            games[roomId].ready = true;
+        }
+
+        await sendMessage(roomId,"reload-game;---")
+
+    }
+
     async startGame(roomId, res) {
         if(!roomId) {
-            return res.status(401).send('Invalid room id');
+            return res.status(400).send('Invalid room id');
         }
         if(games[roomId]) {
-            return res.status(401).send('Room already created');
+            return res.status(400).send('Room already created');
         }
         console.log("Starting "+roomId)
         /**
@@ -26,11 +55,16 @@ class UserController {
          */
         let players = (await getUsers(roomId)).map(id=> new Player(id));
 
+        for (let player of players){
+            if ((await getCards(player)).length < 3)
+                return res.status(400).send('3 cards needed per player');
+        }
+
         players.forEach(player => {
             player.resetActionPoints();
         });
         players[0].isTurn = true;
-        games[roomId] = {players};
+        games[roomId] = {players, ready: false};
         await sendMessage(roomId,"start-game;---")
         res.send({ message: "Le jeu a commencé." });
     }
