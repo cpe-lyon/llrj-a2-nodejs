@@ -4,6 +4,7 @@ const { Server } = require('socket.io');
 const Stomp = require("stomp-client");
 const room = require('./app/chat/controller/chatController');
 const login = require('./app/chat/middleware/loginMiddleware');
+const {GATEWAY_HOST} = require("./app/commons/config");
 Object.assign(global, { WebSocket: require('ws') });
 let rooms = {'0': {users:new Set()}};
 
@@ -12,7 +13,7 @@ app.use(express.json());
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:8080',
+    origin: 'http://'+GATEWAY_HOST,
     methods: ['GET', 'POST']
   }
 });
