@@ -1,9 +1,9 @@
 class Card {
-    constructor(id, name, attack, health) {
+    constructor(id, name, attack, hp) {
         this.id = id;
         this.name = name;
         this.attack = attack;
-        this.health = health;
+        this.hp = hp;
     }
 }
 

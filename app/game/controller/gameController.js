@@ -79,33 +79,33 @@ class UserController {
         if(players[0].isTurn == true) {
             attacker = players[0];
             defender = players[1];
-            cardA = attacker.cards.find(c => c.id === attackerCardId);
-            cardD = defender.cards.find(c => c.id === defenderCardId);
         } else {
             attacker = players[1];
             defender = players[0];
-            cardA = defender.cards.find(c => c.id === attackerCardId);
-            cardD = attacker.cards.find(c => c.id === defenderCardId);
         }
+        cardA = attacker.cards.find(c => c.id === attackerCardId);
+        cardD = defender.cards.find(c => c.id === defenderCardId);
 
         if (!cardA || !cardD) {
             throw new Error("Carte non trouvée dans les cartes de l'attaquant.");
         }
 
-        if(cardA.hasOwnProperty('attack')) {
+        if(!cardA.hasOwnProperty('attack')) {
             cardA.attack = 5
         }
-        if(cardD.hasOwnProperty('health')) {
-            cardD.health = 10
+        if(!cardD.hasOwnProperty('hp')) {
+            cardD.hp = 10
         }
 
-        if (attacker.actionPoints < cardA.attack) {
+        console.log("ADOIWHOIHJAWOIDJAWD", cardD);
+        
+        if (attacker.actionPoints < cardA.energy) {
             throw new Error("Pas assez de points d'action pour jouer cette carte.");
         }
 
-        attacker.actionPoints -= cardA.attack;
+        attacker.actionPoints -= cardA.energy;
 
-        let damage = Math.abs(cardA.attack - cardD.health)
+        let damage = Math.abs(cardA.attack)
 
         const critChance = Math.random();
         const dodgeChance = Math.random();
@@ -122,53 +122,54 @@ class UserController {
             console.log("Esquive réussie !");
         }
 
-        cardD.health -= damage;
+        cardD.hp -= damage;
 
-        if (cardD.health <=0){
+        if (cardD.hp <=0){
             sendMessage(roomId,`reload-game;Dégâts infligés : ${damage}, carte tué : ${cardD.id}`);
             console.log(`Dégâts infligés : ${damage}, carte tué : ${cardD.id}`);
-            checkGameOver(defender);
+            this.checkGameOver(defender, roomId);
         }else {
-            sendMessage(roomId,`reload-game;Dégâts infligés : ${damage}, vie restante : ${cardD.health}`);
-            console.log(`Dégâts infligés : ${damage}, vie restante : ${cardD.health}`);
-            attacker, defender = checkEndTurn(attacker, defender);
+            sendMessage(roomId,`reload-game;Dégâts infligés : ${damage}, vie restante : ${cardD.hp}`);
+            console.log(`Dégâts infligés : ${damage}, vie restante : ${cardD.hp}`);
+            [attacker, defender] = this.checkEndTurn(attacker, defender, roomId);
         }
 
-        games[roomId].players[0] = attacker;
-        games[roomId].players[1] = defender;
+        console.log(defender);
     }
 
-    endTurn(roomid, res) {
+    endTurn(roomId, res) {
         if(!games[roomId]) {
             res.status(404).send('Room not found');
         }
         let players = games[roomId].players;
         if(players[0].isTurn == true) {
-            games[roomId].players[0] = false;
-            games[roomId].players[1] = true;
+            games[roomId].players[0].isTurn = false;
+            games[roomId].players[1].isTurn = true;
+            console.log(games[roomId].players[1]);
+            
             games[roomId].players[1].addActionPoints();
-            sendMessage(roomid,`reload-game;C'est au tour de ${players[1]}`);
+            sendMessage(roomId,`reload-game;C'est au tour de ${players[1]}`);
         } else {
-            games[roomId].players[1] = false;
-            games[roomId].players[0] = true;
+            games[roomId].players[1].isTurn = false;
+            games[roomId].players[0].isTurn = true;
             games[roomId].players[0].addActionPoints();
-            sendMessage(roomid,`reload-game;C'est au tour de ${players[0]}`);
+            sendMessage(roomId,`reload-game;C'est au tour de ${players[0]}`);
         }
     }
 
-    checkEndTurn(player1, player2){
+    checkEndTurn(player1, player2, roomId){
         if (player1.actionPoints === 0){
             player1.isTurn=false;
             player2.isTurn=true;
             player2.addActionPoints();
-            sendMessage(roomid,`reload-game;C'est au tour de ${player2}`);
+            sendMessage(roomId,`reload-game;C'est au tour de ${player2}`);
         }
-        return player1, player2;
+        return [player1, player2];
     }
 
-    checkGameOver(player) {
+    checkGameOver(player, roomId) {
         if (player.cards.length === 0){
-            sendMessage(roomid,`game-end;${player} a perdu`)
+            sendMessage(roomId,`game-end;${player} a perdu`)
             return true
         }
     }

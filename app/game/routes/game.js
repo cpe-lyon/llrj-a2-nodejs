@@ -19,17 +19,17 @@ router.post('/select/:room', async (req, res) => {
     return await gameController.selectCards(req.params.room, userLogin, req.body.cardIds, res);
 });
 
-router.post('/playCard', (req, res) => {
+router.post('/playCard/:room', (req, res) => {
     try {
-        const damage = gameController.playCard(req.body.attacker, req.body.defender, req.body.cardId);
+        const damage = gameController.playCard(req.params.room, req.body.cardIdAttacker, req.body.cardIdDefender, res);
         res.send({ message: `Carte jouée avec succès, dégâts infligés: ${damage}` });
     } catch (error) {
         res.status(400).send({ error: error.message });
     }
 });
 
-router.post('/endTurn', (req, res) => {
-    gameController.endTurn(req.body.players);
+router.post('/endTurn/:room', (req, res) => {
+    gameController.endTurn(req.params.room, res);
     res.send({ message: "Fin de tour, main passée au joueur suivant." });
 });
 

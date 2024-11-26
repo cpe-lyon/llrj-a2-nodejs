@@ -14,7 +14,7 @@ class Player {
         this.actionPoints = this.totalActionPoints;
     }
     addActionPoints(){
-        this.actionPoints += 2;
+        this.actionPoints += this.totalActionPoints;
     }
     isReady(){
         return this.cards.length === 3;
