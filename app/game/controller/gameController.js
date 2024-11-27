@@ -26,7 +26,7 @@ class UserController {
          * @type {Player}
          */
         let player = players && players?.filter(p => p.id === login)[0];
-        if (player.cards?.length === 3)
+        if (player.cards?.length > 0)
             return res.status(400).send("Cards already selected");
         let myCards = await getCards(player);
         let selectedCards = myCards?.filter(c => cards.includes(c.id));
@@ -69,11 +69,15 @@ class UserController {
         res.send({ message: "Le jeu a commencé." });
     }
 
-    playCard(roomId, attackerCardId, defenderCardId, res) {
+    playCard(roomId, attackerCardId, defenderCardId, res, caller) {
         if(!games[roomId]) {
-            res.status(404).send('Room not found');
+            return res.status(404).send('Room not found');
         }
         let players = games[roomId].players;
+
+        if (!players?.filter(p => p.id === caller && p.isTurn)?.length){
+            return res.status(404).send('Not your turn');
+        }
         let cardA, cardD, attacker, defender;
 
         if(players[0].isTurn == true) {
@@ -97,7 +101,6 @@ class UserController {
             cardD.hp = 10
         }
 
-        console.log("ADOIWHOIHJAWOIDJAWD", cardD);
         
         if (attacker.actionPoints < cardA.energy) {
             throw new Error("Pas assez de points d'action pour jouer cette carte.");
@@ -127,7 +130,11 @@ class UserController {
         if (cardD.hp <=0){
             sendMessage(roomId,`reload-game;Dégâts infligés : ${damage}, carte tué : ${cardD.id}`);
             console.log(`Dégâts infligés : ${damage}, carte tué : ${cardD.id}`);
-            this.checkGameOver(defender, roomId);
+            defender.cards = defender.cards.filter(c => c.id !== cardD.id);
+            if (this.checkGameOver(defender, roomId)){
+                games[roomId] = null;
+                return;
+            }
         }else {
             sendMessage(roomId,`reload-game;Dégâts infligés : ${damage}, vie restante : ${cardD.hp}`);
             console.log(`Dégâts infligés : ${damage}, vie restante : ${cardD.hp}`);
@@ -135,26 +142,31 @@ class UserController {
         }
 
         console.log(defender);
+        res.send({ message: `Carte jouée avec succès, dégâts infligés: ${damage}` });
     }
 
-    endTurn(roomId, res) {
+    endTurn(roomId, res, caller) {
         if(!games[roomId]) {
-            res.status(404).send('Room not found');
+            return res.status(404).send('Room not found');
         }
         let players = games[roomId].players;
+        if (!players?.filter(p => p.id === caller && p.isTurn)?.length){
+            return res.status(404).send('Not your turn');
+        }
         if(players[0].isTurn == true) {
             games[roomId].players[0].isTurn = false;
             games[roomId].players[1].isTurn = true;
             console.log(games[roomId].players[1]);
             
             games[roomId].players[1].addActionPoints();
-            sendMessage(roomId,`reload-game;C'est au tour de ${players[1]}`);
+            sendMessage(roomId,`reload-game;C'est au tour de @${players[1].id}`);
         } else {
             games[roomId].players[1].isTurn = false;
             games[roomId].players[0].isTurn = true;
             games[roomId].players[0].addActionPoints();
-            sendMessage(roomId,`reload-game;C'est au tour de ${players[0]}`);
+            sendMessage(roomId,`reload-game;C'est au tour de @${players[0].id}`);
         }
+        res.send({ message: "Fin de tour, main passée au joueur suivant." });
     }
 
     checkEndTurn(player1, player2, roomId){
@@ -162,14 +174,15 @@ class UserController {
             player1.isTurn=false;
             player2.isTurn=true;
             player2.addActionPoints();
-            sendMessage(roomId,`reload-game;C'est au tour de ${player2}`);
+            sendMessage(roomId,`reload-game;C'est au tour de @${player2.id}`);
         }
         return [player1, player2];
     }
 
     checkGameOver(player, roomId) {
         if (player.cards.length === 0){
-            sendMessage(roomId,`game-end;${player} a perdu`)
+            sendMessage(roomId,`game-end;@${player.id} a perdu`)
+            console.log("PARTIE TERMINEE", roomId);
             return true
         }
     }

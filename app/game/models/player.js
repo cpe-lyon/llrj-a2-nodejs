@@ -3,8 +3,8 @@ class Player {
         this.id = id;
         this.cards = []; // cartes choisies par le joueur
         this.actionPoints = 50;
-        this.totalActionPoints = 50;
-        this.maxActionPoints = 300;
+        this.totalActionPoints = 10;
+        this.maxActionPoints = 200;
         this.isTurn = false;
     }
     addCard(card) {
@@ -17,7 +17,7 @@ class Player {
         this.actionPoints += this.totalActionPoints;
     }
     isReady(){
-        return this.cards.length === 3;
+        return this.cards.length > 0;
     }
 }
 

@@ -20,17 +20,18 @@ router.post('/select/:room', async (req, res) => {
 });
 
 router.post('/playCard/:room', (req, res) => {
+    const userLogin = req.headers['x-login'];
     try {
-        const damage = gameController.playCard(req.params.room, req.body.cardIdAttacker, req.body.cardIdDefender, res);
-        res.send({ message: `Carte jouée avec succès, dégâts infligés: ${damage}` });
+        return gameController.playCard(req.params.room, req.body.cardIdAttacker, req.body.cardIdDefender, res, userLogin);
+
     } catch (error) {
         res.status(400).send({ error: error.message });
     }
 });
 
 router.post('/endTurn/:room', (req, res) => {
-    gameController.endTurn(req.params.room, res);
-    res.send({ message: "Fin de tour, main passée au joueur suivant." });
+    const userLogin = req.headers['x-login'];
+    gameController.endTurn(req.params.room, res, userLogin);
 });
 
 module.exports = router;
