@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  chat:
+    build:
+      context: .
+      dockerfile: Dockerfile.chat
+    command: npm run chat
+    ports:
+      - "8089:8089"
+    networks:
+      - app-network
+    environment:
+      - NODE_ENV=production
+
+  game:
+    build:
+      context: .
+      dockerfile: Dockerfile.game
+    command: npm run game
+    ports:
+      - "8088:8088"
+    networks:
+      - app-network
+    environment:
+      - NODE_ENV=production
+
+networks:
+  app-network:
+    driver: bridge

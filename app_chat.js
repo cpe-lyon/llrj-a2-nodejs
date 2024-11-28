@@ -18,7 +18,7 @@ const io = new Server(server, {
   }
 });
 
-const client = new Stomp('localhost', 61613, 'admin', 'password');
+const client = new Stomp('activemq', 61613, 'admin', 'password');
 
 client.connect(function(sessionId) {
   console.log('Connected to ActiveMQ with session ID:', sessionId);
